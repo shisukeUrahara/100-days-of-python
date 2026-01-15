@@ -1,5 +1,4 @@
 import random
-from os import MFD_ALLOW_SEALING
 
 word_list = ["aardvark", "baboon", "camel"]
 #
@@ -13,12 +12,13 @@ game_ended=False
 game_end_reason='You lost'
 array_result=["_"]*len(chosen_word)
 num_of_lives_remaining= len(chosen_word)
+initial_lives = len(chosen_word)
 
 
 
 
 def end_game(reason):
-    print(F"************ GAME OVER ************** ")
+    print("************ GAME OVER ************** ")
     print(f"{reason}")
 
 
@@ -34,9 +34,99 @@ def get_matching_indices(chosen_word,guessed_word):
     return result
 
 
+def display_hangman(lives_remaining, initial_lives):
+    """Display hangman ASCII art based on lives remaining"""
+    # Calculate which stage of hangman to show (6 stages total)
+    # Map lives to stages proportionally
+    lives_lost = initial_lives - lives_remaining
+    # Convert to 6 stages (0-5)
+    stage = int((lives_lost / initial_lives) * 6)
+    stage = min(stage, 5)  # Cap at stage 5 (fully drawn)
+    
+    hangman_stages = [
+        # Stage 0: No body parts
+        """
+           +---+
+           |   |
+               |
+               |
+               |
+               |
+         =========
+        """,
+        # Stage 1: Head
+        """
+           +---+
+           |   |
+           O   |
+               |
+               |
+               |
+         =========
+        """,
+        # Stage 2: Head + Body
+        """
+           +---+
+           |   |
+           O   |
+           |   |
+               |
+               |
+         =========
+        """,
+        # Stage 3: Head + Body + Left Arm
+        """
+           +---+
+           |   |
+           O   |
+          /|   |
+               |
+               |
+         =========
+        """,
+        # Stage 4: Head + Body + Both Arms
+        """
+           +---+
+           |   |
+           O   |
+          /|\\  |
+               |
+               |
+         =========
+        """,
+        # Stage 5: Complete (Head + Body + Arms + Left Leg)
+        """
+           +---+
+           |   |
+           O   |
+          /|\\  |
+          /    |
+               |
+         =========
+        """,
+        # Stage 6: Fully hanged (Head + Body + Arms + Both Legs)
+        """
+           +---+
+           |   |
+           O   |
+          /|\\  |
+          / \\  |
+               |
+         =========
+        """
+    ]
+    
+    # Show stage 6 only when lives are 0
+    if lives_remaining == 0:
+        print(hangman_stages[6])
+    else:
+        print(hangman_stages[stage])
+
+
 
 while(not game_ended):
     print("********************HANGMAN GAME*********************************************************")
+    display_hangman(num_of_lives_remaining, initial_lives)
     print(f"{num_of_lives_remaining} lives remaining ************************")
     print(f"current word {"".join(array_result)}")
     guessed_word=input("Guess an alphabet \n")
@@ -44,6 +134,7 @@ while(not game_ended):
         num_of_lives_remaining=num_of_lives_remaining-1
         if(num_of_lives_remaining==0):
             game_ended=True
+            display_hangman(num_of_lives_remaining, initial_lives)
             end_game(game_end_reason)
         else:
             print("You guessed the wrong character")
@@ -59,6 +150,7 @@ while(not game_ended):
             # if(array_result.find("_",0)==-1):
             if("_" not in array_result):
                 game_ended=True
+                display_hangman(num_of_lives_remaining, initial_lives)
                 end_game("You guessed the correct word")
 
 
@@ -71,9 +163,3 @@ while(not game_ended):
 
 
 
-# TODO-3 - Check if the letter the user guessed (guess) is one of the letters in the chosen_word. Print "Right" if it
-#  is, "Wrong" if it's not.
-
-
-# word='apple'
-# print(f"p arrives at index {word.index('p',2)}")
